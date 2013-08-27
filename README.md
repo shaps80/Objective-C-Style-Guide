@@ -6,16 +6,16 @@ You can view many examples of my code in my [GIST's](https://gist.github.com/sha
 
 ## Introduction
 
-Here are some of the documents from Apple that informed the style guide. If something isn't mentioned here, it's probably covered in great detail in one of these:
+This style guide is based on my own experience as a developer, but I also gathered ideas from various other sources:
 
 * [The Objective-C Programming Language](http://developer.apple.com/library/mac/#documentation/Cocoa/Conceptual/ObjectiveC/Introduction/introObjectiveC.html)
 * [Cocoa Fundamentals Guide](https://developer.apple.com/library/mac/#documentation/Cocoa/Conceptual/CocoaFundamentals/Introduction/Introduction.html)
 * [Coding Guidelines for Cocoa](https://developer.apple.com/library/mac/#documentation/Cocoa/Conceptual/CodingGuidelines/CodingGuidelines.html)
 * [iOS App Programming Guide](http://developer.apple.com/library/ios/#documentation/iphone/conceptual/iphoneosprogrammingguide/Introduction/Introduction.html)
+* [NYTimes Objective-C Style Guide](https://github.com/NYTimes/objective-c-style-guide)
 
 ## Table of Contents
 
-* [Dot-Notation Syntax](#dot-notation-syntax)
 * [Spacing](#spacing)
 * [Conditionals](#conditionals)
   * [Ternary Operator](#ternary-operator)
@@ -28,28 +28,13 @@ Here are some of the documents from Apple that informed the style guide. If some
 * [Literals](#literals)
 * [CGRect Functions](#cgrect-functions)
 * [Constants](#constants)
+* [Macros](#macros)
 * [Enumerated Types](#enumerated-types)
 * [Private Properties](#private-properties)
-* [Image Naming](#image-naming)
+* [Theming](#theming)
 * [Booleans](#booleans)
 * [Singletons](#singletons)
 * [Xcode Project](#xcode-project)
-
-## Dot-Notation Syntax
-
-Dot-notation should **always** be used for accessing and mutating properties. Bracket notation is preferred in all other instances.
-
-**For example:**
-```objc
-view.backgroundColor = [UIColor orangeColor];
-[UIApplication sharedApplication].delegate;
-```
-
-**Not:**
-```objc
-[view setBackgroundColor:[UIColor orangeColor]];
-UIApplication.sharedApplication.delegate;
-```
 
 ## Spacing
 
@@ -70,7 +55,7 @@ else {
 
 ## Conditionals
 
-Conditional bodies should always use braces even when a conditional body could be written without braces (e.g., it is one line only) to prevent [errors](https://github.com/NYTimes/objective-c-style-guide/issues/26#issuecomment-22074256). These errors include adding a second line and expecting it to be part of the if-statement. Another, [even more dangerous defect](http://programmers.stackexchange.com/a/16530) may happen where the line "inside" the if-statement is commented out, and the next line unwittingly becomes part of the if-statement. In addition, this style is more consistent with all other conditionals, and therefore more easily scannable.
+Conditional bodies should usually use braces even when a conditional body could be written without braces (e.g., it is one line only) to prevent [errors](https://github.com/NYTimes/objective-c-style-guide/issues/26#issuecomment-22074256). These errors include adding a second line and expecting it to be part of the if-statement. Another, [even more dangerous defect](http://programmers.stackexchange.com/a/16530) may happen where the line "inside" the if-statement is commented out, and the next line unwittingly becomes part of the if-statement. In addition, this style is more consistent with all other conditionals, and therefore more easily scannable.
 
 **For example:**
 ```objc
@@ -85,9 +70,7 @@ if (!error)
     return success;
 ```
 
-or
-
-```objc
+* Note: The following acceptable under some circumstances
 if (!error) return success;
 ```
 
@@ -103,6 +86,16 @@ result = a > b ? x : y;
 **Not:**
 ```objc
 result = a > b ? x = c > d ? c : d : y;
+```
+
+The Ternary pattern is recommended when lazy loading property getteres.
+
+**For example:**
+```objc
+- (NSMutableArray *)myArray
+{
+	return _array ?: (_array = [[NSMutableArray alloc] init]);
+}
 ```
 
 ## Methods
@@ -157,12 +150,12 @@ UIButton *settingsButton;
 UIButton *setBut;
 ```
 
-A three letter prefix (e.g. `NYT`) should always be used for class names and constants, however may be omitted for Core Data entity names. Constants should be camel-case with all words capitalized and prefixed by the related class name for clarity.
+A three letter prefix (e.g. `SPX`) should always be used for class names and constants, however may be omitted for Core Data entity names. Constants should be camel-case with all words capitalized and prefixed by the related class name for clarity.
 
 **For example:**
 
 ```objc
-static const NSTimeInterval NYTArticleViewControllerNavigationFadeAnimationDuration = 0.3;
+static const NSTimeInterval SPXArticleViewControllerNavigationFadeAnimationDuration = 0.3;
 ```
 
 **Not:**
@@ -204,9 +197,9 @@ Block comments should generally be avoided, as code should be as self-documentin
 ```objc
 - (instancetype)init {
     self = [super init]; // or call the designated initalizer
-    if (self) {
-        // Custom initialization
-    }
+    if (!self) return nil;
+	
+	...
 
     return self;
 }
@@ -232,6 +225,12 @@ NSArray *names = [NSArray arrayWithObjects:@"Brian", @"Matt", @"Chris", @"Alex",
 NSDictionary *productManagers = [NSDictionary dictionaryWithObjectsAndKeys: @"Kate", @"iPhone", @"Kamal", @"iPad", @"Bill", @"Mobile Web", nil];
 NSNumber *shouldUseLiterals = [NSNumber numberWithBool:YES];
 NSNumber *buildingZIPCode = [NSNumber numberWithInteger:10018];
+```
+
+To prevent crashes from nil values, it is acceptable to provide default values using:
+
+```objc
+NSArray *names = @[ name ?: @"Unknown" ];
 ```
 
 ## CGRect Functions
@@ -269,17 +268,31 @@ Constants are preferred over in-line string literals or numbers, as they allow f
 **For example:**
 
 ```objc
-static NSString * const NYTAboutViewControllerCompanyName = @"The New York Times Company";
+static NSString * const SPXAboutViewControllerCompanyName = @"Snippex represents code written by Shaps Mohsenin";
 
-static const CGFloat NYTImageThumbnailHeight = 50.0;
+static const CGFloat SPXImageThumbnailHeight = 50.0;
 ```
 
 **Not:**
 
 ```objc
-#define CompanyName @"The New York Times Company"
+#define CompanyName @"Snippex"
 
 #define thumbnailHeight 2
+```
+
+## Macros
+
+Macros should be always be named with a 3 letter prefix followed by their functionality. They are often used in Snippex to support cross platform development between iOS and OS X.
+
+**For example:**
+```objc
+
+#if TARGET_OS_IPHONE
+#define SPXGraphicsContext UIGraphicsGetCurrentContext()
+#else
+#define SPXGraphicsContext [[NSGraphicsContext currentContext] graphicsPort]
+#endif
 ```
 
 ## Enumerated Types
@@ -289,20 +302,20 @@ When using `enum`s, it is recommended to use the new fixed underlying type speci
 **Example:**
 
 ```objc
-typedef NS_ENUM(NSInteger, NYTAdRequestState) {
-    NYTAdRequestStateInactive,
-    NYTAdRequestStateLoading
+typedef NS_ENUM(NSInteger, SPXAdRequestState) {
+    SPXAdRequestStateInactive,
+    SPXAdRequestStateLoading
 };
 ```
 
 ## Private Properties
 
-Private properties should be declared in class extensions (anonymous categories) in the implementation file of a class. Named categories (such as `NYTPrivate` or `private`) should never be used unless extending another class.
+Private properties should be declared in class extensions (anonymous categories) in the implementation file of a class. Named categories (such as `SPXPrivate` or `private`) should never be used unless extending another class.
 
 **For example:**
 
 ```objc
-@interface NYTAdvertisement ()
+@interface SPXAdvertisement ()
 
 @property (nonatomic, strong) GADBannerView *googleAdView;
 @property (nonatomic, strong) ADBannerView *iAdView;
@@ -311,16 +324,39 @@ Private properties should be declared in class extensions (anonymous categories)
 @end
 ```
 
-## Image Naming
+## Theming
 
-Image names should be named consistently to preserve organization and developer sanity. They should be named as one camel case string with a description of their purpose, followed by the un-prefixed name of the class or property they are customizing (if there is one), followed by a further description of color and/or placement, and finally their state.
+Theming should be provided through a helper class. This makes it easy to make global changes throughout the app and maintains consistency for accessing resources. 
+Macros should be used to provide access to fonts, colors and images unless the resources cannot be returned in a single line of code.
+
+Definition should NEVER end the line with a ';'
+Font macros should have a prefix similar to 'SPXThemeFont' followed by the name and variation of the font. The fontsize should be passed using a parameter.
+Color macros should have a prefix similar to 'SPXThemeColor' followed by a description of where the color will be applied. 
+Image macros should be prefixed with a 3 letter prefix
+
+When a font, color or image is used throughout your app, it is acceptable to provide a more general description.
+All names should inclulde the class or parent they will be applied to before their description, this aids in autocomplete, for example when searching for all UITableViewCell images: SPXThemeColorCell... 
 
 **For example:**
 
-* `RefreshBarButtonItem` / `RefreshBarButtonItem@2x` and `RefreshBarButtonItemSelected` / `RefreshBarButtonItemSelected@2x`
-* `ArticleNavigationBarWhite` / `ArticleNavigationBarWhite@2x` and `ArticleNavigationBarBlackSelected` / `ArticleNavigationBarBlackSelected@2x`.
+```objc
+#define SPXThemeColorCellBackground [UIColor lighGrayColor]
+#define SPXThemeFontHelveticaBold(SIZE) [UIFont fontWithName:@"Helvetica" size:SIZE]
+#define SPXThemeImageBarButtonItemRefresh [UIImage imageNamed:@"barButtonItemRefresh"]
+```
 
-Images that are used for a similar purpose should be grouped in respective groups in an Images folder.
+**Not:**
+```objc
+#define CellBackground [UIColor lightGrayColor]
+#define HelveticaFont15 [UIFont fontWithName:@"Helvetica" size:15]
+#define SPXThemeRefreshBarButtonItem [UIImage imageNamed:@"barButtonItemRefresh"]
+```
+
+Image names should be named consistently to preserve organization and developer sanity. They should be named as one camel case string with a the un-prefixed name of the class or property they are customizing (if there is one), followed by a description of their purpose, followed by a further description of color and/or placement, and finally their state.
+
+**For example:**
+
+* `barButtonItemRefresh` / `barButtonItemRefresh@2x` and `barButtomItemRefreshSelected` / `barButtomItemRefreshSelected@2x`
 
 ## Booleans
 
@@ -392,7 +428,7 @@ When possible, always turn on "Treat Warnings as Errors" in the target's Build S
 
 # Other Objective-C Style Guides
 
-If ours doesn't fit your tastes, have a look at some other style guides:
+If this doesn't fit your tastes, have a look at some other style guides:
 
 * [Google](http://google-styleguide.googlecode.com/svn/trunk/objcguide.xml)
 * [GitHub](https://github.com/github/objective-c-conventions)
