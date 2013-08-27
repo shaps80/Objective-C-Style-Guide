@@ -17,6 +17,7 @@ This style guide is based on my own experience as a developer, but I also gather
 
 ## Table of Contents
 
+* [Documentation](#documentation)
 * [Spacing](#spacing)
 * [Conditionals](#conditionals)
   * [Ternary Operator](#ternary-operator)
@@ -36,6 +37,12 @@ This style guide is based on my own experience as a developer, but I also gather
 * [Booleans](#booleans)
 * [Singletons](#singletons)
 * [Xcode Project](#xcode-project)
+
+##Documentation
+
+* All method declarations should be documented
+* Comments should be [AppleDoc](http://gentlebytes.com/appledoc/)-style
+* Use `#pragma mark`s to categorize methods into functional groupings and protocol implementations, following this general structure
 
 ## Spacing
 
