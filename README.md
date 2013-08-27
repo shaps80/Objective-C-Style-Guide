@@ -1,6 +1,7 @@
 # My Objective-C Style Guide
 
 This style guide outlines the coding conventions I use across all of my projects. 
+I started by taking a lot from the [NYTimes Objective-C Style Guide](https://github.com/NYTimes/objective-c-style-guide) however many of the ideas represented in this style guide are my own, and I've made some slight changes and additions where appropriate.
 
 You can view many examples of my code in my [GIST's](https://gist.github.com/shaps80/) or [GitHub](http://github.com/shaps80)
 
