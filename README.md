@@ -118,7 +118,7 @@ Property definitions should be used in place of naked instance variables wheneve
 **For example:**
 
 ```objc
-@interface NYTSection: NSObject
+@interface SPXSection: NSObject
 
 @property (nonatomic) NSString *headline;
 
@@ -128,7 +128,7 @@ Property definitions should be used in place of naked instance variables wheneve
 **Not:**
 
 ```objc
-@interface NYTSection : NSObject {
+@interface SPXSection : NSObject {
     NSString *headline;
 }
 ```
