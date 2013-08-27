@@ -18,6 +18,7 @@ This style guide is based on my own experience as a developer, but I also gather
 ## Table of Contents
 
 * [Documentation](#documentation)
+* [Expressions](#expressions)
 * [Spacing](#spacing)
 * [Conditionals](#conditionals)
   * [Ternary Operator](#ternary-operator)
@@ -43,6 +44,29 @@ This style guide is based on my own experience as a developer, but I also gather
 * All method declarations should be documented
 * Comments should be [AppleDoc](http://gentlebytes.com/appledoc/)-style
 * Use `#pragma mark`s to categorize methods into functional groupings and protocol implementations, following this general structure
+
+##Expressions
+
+* Use object literals, boxed expressions, and subscripting over the older, grosser alternatives
+* Don't access an ivar unless you're in -init, -dealloc or a custom accessor
+* Don't use @synthesize unless the compiler requires it. Note that optional properties in protocols must be explicitly synthesized in order to exist
+* Use instancetype instead of id where appropriate
+
+##Categories
+
+Categories should be named with a 3 letter prefix, followed by either the word `Additions` or something more specific if necessary.
+
+**For example:**
+```objc
+NSColor (NSColor+SPXAdditions)
+UIImage (UIImage+SPXBlurAdditions)
+```
+
+**Not:**
+```objc
+NSColor (NSColor+Additions)
+UIImage (UIImageBlur)
+```
 
 ## Spacing
 
